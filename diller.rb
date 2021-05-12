@@ -3,13 +3,10 @@ require_relative 'player'
 class Diller < Player
   def initialize
     super('Diller')
+    @cards_open = false
   end
 
-  def make_move
-    if calculate_points >= 17
-      skip
-    else
-      take_card
-    end
+  def make_a_move
+    calculate_points >= 17 ? 1 : 2
   end
 end

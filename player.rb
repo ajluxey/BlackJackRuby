@@ -1,15 +1,13 @@
 require_relative 'interface'
 
 class Player
-  attr_reader :name, :cards, :money
+  attr_reader :name, :cards, :money, :cards_open
 
   def initialize(name)
     @name = name
     @money = 100
     @cards = []
-  end
-
-  def make_move
+    @cards_open = true
   end
 
   def calculate_points
@@ -35,16 +33,16 @@ class Player
     count
   end
 
-  def take_card(card)
-    @cards << card
+  def skip
   end
 
-  def skip
-    'skip'
+  def take_card(card)
+    @cards << card
+    open_cards if @cards.length == 3
   end
 
   def open_cards
-    'open'
+    @cards_open = true
   end
 
   def to_s

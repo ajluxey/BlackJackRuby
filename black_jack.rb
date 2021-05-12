@@ -16,6 +16,7 @@ class BlackJack
 
   def run
     if @interface.main_menu == 1
+      init_players
       start_game
     else
       exit
@@ -28,7 +29,6 @@ class BlackJack
   end
 
   def start_game
-    init_players
     2.times do
       @player1.take_card(@deck.give_card)
       @player2.take_card(@deck.give_card)
@@ -37,10 +37,37 @@ class BlackJack
     @bank.accept_bet(@player2.bet(10))
     
     @interface.draw_game(@player1, @player2, @bank)
+
+    while round
+      if @player1.cards.length == 3 and @player2.length == 3
+      end
+    end
+    choose_winner
   end
 
   def round
-    @player1.make_move
+    p1_decision = @interface.ask_about_move
+    do_move_by_index(@player1, p1_decision)
+    @interface.draw_game(@player1, @player2, @bank)
+
+    if p1_decision != 3
+      p2_decision = @player2.make_a_move
+      do_move_by_index(@player2, p2_decision)
+      @interface.draw_game(@player1, @player2, @bank)
+    else
+      return false
+    end
+    true
+  end
+
+  def do_move_by_index(player, move_index)
+    case move_index
+    when 2
+      player.take_card(@deck.give_card)
+    when 3
+      @player1.open_cards
+      @player2.open_cards
+    end
   end
 end
 
