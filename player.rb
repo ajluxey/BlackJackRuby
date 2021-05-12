@@ -13,15 +13,20 @@ class Player
 
   def calculate_points
     points = 0
+    ace_flag = false
+
     @cards.each do |card|
       if card.to_i != 0
         points += card.to_i
       else
-        # сделать проверку на туза
-        points += 10
+        if card[0] == "A"
+          ace_flag = true
+        else
+          points += 10
+        end 
       end
     end
-    points
+    ace_flag && points <= 10 ? points += 11 : points += 1 
   end
 
   def bet(count)
@@ -39,5 +44,9 @@ class Player
 
   def open_cards
     puts 'open'
+  end
+
+  def to_s
+    puts "#{name}: #{calculate_points}"
   end
 end
