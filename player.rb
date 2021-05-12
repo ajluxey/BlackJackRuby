@@ -1,6 +1,7 @@
+require_relative 'interface'
+
 class Player
-  attr_reader :name
-  attr_reader :cards
+  attr_reader :name, :cards, :money
 
   def initialize(name)
     @name = name
@@ -30,7 +31,7 @@ class Player
   end
 
   def bet(count)
-    @money - count
+    @money -= count
     count
   end
 
@@ -39,11 +40,11 @@ class Player
   end
 
   def skip
-    puts 'skip'
+    'skip'
   end
 
   def open_cards
-    puts 'open'
+    'open'
   end
 
   def to_s

@@ -1,9 +1,11 @@
 class Bank
+  attr_reader :money
+
   def initialize
-    @bank = 0
+    @money = 0
   end
 
   def accept_bet(count)
-    @bank += count
+    @money += count
   end
 end

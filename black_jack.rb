@@ -2,37 +2,45 @@ require_relative 'diller'
 require_relative 'player'
 require_relative 'bank'
 require_relative 'deck'
+require_relative 'interface'
 
 class BlackJack
+  OPTIONS_OF_MOVE = ['Взять карту', 'Пропустить', 'Открыть карты']
+
   def initialize
     @deck = Deck.new
     @bank = Bank.new
-    start_game
+    @interface = Interface.new
+    run
+  end
+
+  def run
+    if @interface.main_menu == 1
+      start_game
+    else
+      exit
+    end
   end
 
   def init_players
-    puts 'Введите имя:'
-    name = gets.chomp
-    @player = Player.new(name)
-    @diller = Diller.new
+    @player1 = Player.new(@interface.ask_name)
+    @player2 = Diller.new
   end
 
   def start_game
     init_players
     2.times do
-      @player.take_card(@deck.give_card)
-      @diller.take_card(@deck.give_card)
+      @player1.take_card(@deck.give_card)
+      @player2.take_card(@deck.give_card)
     end
-    @bank.accept_bet(@player.bet(10))
-    @bank.accept_bet(@diller.bet(10))
-    round
+    @bank.accept_bet(@player1.bet(10))
+    @bank.accept_bet(@player2.bet(10))
+    
+    @interface.draw_game(@player1, @player2, @bank)
   end
 
   def round
-    puts @player.cards
-    puts @player.calculate_points
-    puts @diller.cards
-    puts @diller.calculate_points
+    @player1.make_move
   end
 end
 
