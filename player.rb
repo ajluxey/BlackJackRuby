@@ -1,7 +1,11 @@
-require_relative 'interface'
+# frozen_string_literal: true
+
+require_relative 'player_moves'
 
 class Player
   attr_reader :name, :cards, :money, :cards_open
+
+  include PlayerMoves
 
   def initialize(name)
     @name = name
@@ -17,35 +21,43 @@ class Player
     @cards.each do |card|
       if card.to_i != 0
         points += card.to_i
+      elsif card[0] == 'A'
+        ace_flag = true
       else
-        if card[0] == "A"
-          ace_flag = true
-        else
-          points += 10
-        end 
+        points += 10
       end
     end
-    ace_flag && points <= 10 ? points += 11 : points += 1 
+    if ace_flag
+      points += points <= 10 ? 11 : 1
+    end
+    points
   end
 
   def bet(count)
     @money -= count
+    raise "From #{self}: Not enough money" if @money.negative?
+
     count
   end
 
-  def skip
+  def get_money(count)
+    @money += count
+    count
   end
+
+  def skip; end
 
   def take_card(card)
     @cards << card
-    open_cards if @cards.length == 3
+    raise "from #{self}: Player have more than 3 card" if @cards.length > 3
   end
 
   def open_cards
     @cards_open = true
   end
 
-  def to_s
-    puts "#{name}: #{calculate_points}"
+  def restart
+    @cards_open = false
+    @cards = []
   end
 end

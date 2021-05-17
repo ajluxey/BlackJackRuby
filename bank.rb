@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Bank
   attr_reader :money
 
@@ -7,5 +9,11 @@ class Bank
 
   def accept_bet(count)
     @money += count
+  end
+
+  def give_all_money
+    tmp = @money
+    @money = 0
+    tmp
   end
 end

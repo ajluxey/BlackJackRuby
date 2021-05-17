@@ -1,11 +1,18 @@
+# frozen_string_literal: true
+
 require_relative 'diller'
 require_relative 'player'
 require_relative 'bank'
 require_relative 'deck'
 require_relative 'interface'
+require_relative 'player_moves'
 
 class BlackJack
-  OPTIONS_OF_MOVE = ['Взять карту', 'Пропустить', 'Открыть карты']
+  POSSIBLE_MOVES = ['Пропустить', 'Взять карту', 'Открыть карты'].freeze
+  START_INDEX = 1
+  EXIT_INDEX = 2
+
+  BET = 10
 
   def initialize
     @deck = Deck.new
@@ -15,16 +22,46 @@ class BlackJack
   end
 
   def run
-    if @interface.main_menu == 1
-      init_players
-      start_game
-    else
-      exit
+    first_start = true
+    init_players
+
+    begin
+      game_index = @interface.main_menu(first_start)
+    rescue StandardError
+      puts 'Неправильный пункт, попробуйте снова'
+      retry
+    end
+
+    first_start = false
+    loop do
+      case game_index
+      when START_INDEX
+        break unless start_game
+      when EXIT_INDEX
+        break
+      end
+
+      begin
+        game_index = @interface.main_menu(first_start)
+      rescue StandardError
+        puts 'Неправильный пункт, попробуйте снова'
+        retry
+      end
+
+      @deck = Deck.new
+      @player1.restart
+      @player2.restart
     end
   end
 
   def init_players
-    @player1 = Player.new(@interface.ask_name)
+    begin
+      name = @interface.ask_name
+    rescue StandardError
+      puts 'Без имени играть нельзя'
+      retry
+    end
+    @player1 = Player.new(name)
     @player2 = Diller.new
   end
 
@@ -33,41 +70,93 @@ class BlackJack
       @player1.take_card(@deck.give_card)
       @player2.take_card(@deck.give_card)
     end
-    @bank.accept_bet(@player1.bet(10))
-    @bank.accept_bet(@player2.bet(10))
-    
-    @interface.draw_game(@player1, @player2, @bank)
 
-    while round
-      if @player1.cards.length == 3 and @player2.length == 3
-      end
+    # return если не хватает деняк
+    return false unless players_place_bet
+
+    next_player_move = [@player1, @player2]
+
+    @interface.draw_the_game(@player1, @player2, @bank)
+    @interface.draw_turn(next_player_move.first)
+
+    while move(next_player_move.first)
+      @interface.draw_the_game(@player1, @player2, @bank)
+      @interface.draw_turn(next_player_move.last)
+      next_player_move.reverse!
     end
     choose_winner
-  end
-
-  def round
-    p1_decision = @interface.ask_about_move
-    do_move_by_index(@player1, p1_decision)
-    @interface.draw_game(@player1, @player2, @bank)
-
-    if p1_decision != 3
-      p2_decision = @player2.make_a_move
-      do_move_by_index(@player2, p2_decision)
-      @interface.draw_game(@player1, @player2, @bank)
-    else
-      return false
-    end
     true
   end
 
-  def do_move_by_index(player, move_index)
-    case move_index
-    when 2
-      player.take_card(@deck.give_card)
-    when 3
-      @player1.open_cards
-      @player2.open_cards
+  def players_place_bet
+    @bank.accept_bet(@player1.bet(BET))
+    @bank.accept_bet(@player2.bet(BET))
+    true
+  rescue StandardError
+    puts 'Недостаточно денег у одного из игроков, игра заканчивается'
+    false
+  end
+
+  def return_bets
+    @player1.get_money(BET)
+    @player2.get_money(BET)
+  end
+
+  def move(player)
+    return false if @player1.cards.length == 3 && @player2.cards.length == 3
+
+    if player == @player1
+      begin
+        move_name = @interface.ask_about_move(player.availabel_moves)
+      rescue StandardError
+        puts 'Неправильно выбран пункт'
+        retry
+      end
+      p_move = player.get_move_by_name(move_name)
+    else
+      move_index = player.make_a_move
+      p_move = player.get_move_by_index(move_index)
     end
+    send(p_move, player)
+  end
+
+  def move_skip(player)
+    player.skip
+    true
+  end
+
+  def move_take_card(player)
+    player.take_card(@deck.give_card)
+    true
+  end
+
+  def move_open_cards(_player)
+    @player1.open_cards
+    @player2.open_cards
+    false
+  end
+
+  def choose_winner
+    p1_points = @player1.calculate_points
+    p2_points = @player2.calculate_points
+    if (p1_points > 21 && p2_points > 21) || p1_points == p2_points
+      return_bets
+      @interface.draw_the_results(nil)
+    elsif p1_points > 21
+      @player2.get_money(@bank.give_all_money)
+      @interface.draw_the_results(@player2)
+    elsif p2_points > 21
+      @player1.get_money(@bank.give_all_money)
+      @interface.draw_the_results(@player1)
+    elsif (21 - p1_points) < (21 - p2_points)
+      @player1.get_money(@bank.give_all_money)
+      @interface.draw_the_results(@player1)
+    else
+      @player2.get_money(@bank.give_all_money)
+      @interface.draw_the_results(@player2)
+    end
+    move_open_cards(nil)
+    @interface.draw_the_game(@player1, @player2, @bank)
   end
 end
 
