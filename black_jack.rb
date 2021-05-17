@@ -8,7 +8,6 @@ require_relative 'interface'
 require_relative 'player_moves'
 
 class BlackJack
-  POSSIBLE_MOVES = ['Пропустить', 'Взять карту', 'Открыть карты'].freeze
   START_INDEX = 1
   EXIT_INDEX = 2
 
