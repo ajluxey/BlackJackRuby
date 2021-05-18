@@ -9,6 +9,11 @@ class Dealer < Player
   end
 
   def decide_of_the_move
-    calculate_points >= 17 ? :skip : :take_card
+    @points >= 17 ? :skip : :take_card
+  end
+
+  def restart
+    @cards_open = false
+    @hand.cards = []
   end
 end
