@@ -16,4 +16,9 @@ class Bank
     @money = 0
     tmp
   end
+
+  def get_money(count)
+    @money -= count
+    count
+  end
 end
