@@ -29,7 +29,7 @@ class Interface
         break
       end
       @game.restart
-      puts "Сыграть снова?"
+      puts 'Сыграть снова?'
     end
   end
 
@@ -38,15 +38,13 @@ class Interface
 
     begin
       @game.deal_initial_card
-    rescue
-      puts "У одного из игроков уже были карты"
+    rescue StandardError
+      puts 'У одного из игроков уже были карты'
       return
     end
 
     @game.can_running?
-    while @game.is_running
-      round
-    end
+    round while @game.is_running
 
     draw_the_game(*@game.get_round_info)
     winner = @game.choose_winner
@@ -58,8 +56,8 @@ class Interface
   def init_players
     begin
       name = ask_name
-    rescue
-      puts "Без имени играть нельзя"
+    rescue StandardError
+      puts 'Без имени играть нельзя'
       retry
     end
     @game.init_players(name)
@@ -86,8 +84,8 @@ class Interface
 
   def ask_about_move(moves)
     res = menu(moves)
-  rescue
-    puts "Неправильный пункт"
+  rescue StandardError
+    puts 'Неправильный пункт'
     retry
   else
     move = moves[res - 1]
@@ -125,8 +123,6 @@ class Interface
     end
   end
 
-  private
-
   def menu(points)
     points.each_with_index do |point, index|
       puts "#{index + 1}. #{point}"
@@ -139,6 +135,7 @@ class Interface
 
   def str_stats_of(player)
     return '' if player.nil?
+
     str = ''
     str += "Player #{player.name}\n"
     str += "Money: #{player.money}\n"

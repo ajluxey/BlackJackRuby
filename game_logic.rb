@@ -15,7 +15,7 @@ class GameLogic
     @deck = Deck.new
     @bank = Bank.new
     @is_running = true
-  end    
+  end
 
   def init_players(name)
     @player1 = Player.new(name)
@@ -24,7 +24,8 @@ class GameLogic
   end
 
   def deal_initial_card
-    raise "У игроков уже есть карты" if @player1.hand.cards.length > 0 || @player2.hand.cards.length > 0
+    raise 'У игроков уже есть карты' if @player1.hand.cards.length.positive? || @player2.hand.cards.length.positive?
+
     2.times do
       @player1.take_card(@deck.give_card)
       @player2.take_card(@deck.give_card)
@@ -42,7 +43,8 @@ class GameLogic
   end
 
   def round
-    return if !can_running?
+    return unless can_running?
+
     player = @players_order.first
     player_move = player.decide_of_the_move
     players_order.reverse!
@@ -51,7 +53,7 @@ class GameLogic
 
   def can_running?
     if @player1.nil? || @player2.nil? || (@player1.hand.cards.length > 2 && @player2.hand.cards.length > 2)
-      @is_running = false 
+      @is_running = false
     end
     @is_running
   end
@@ -75,7 +77,7 @@ class GameLogic
   def restart
     @player1.restart
     @player2.restart
-    @deck = Deck.new()
+    @deck = Deck.new
     @players_order = [@player1, @player2]
     @is_running = true
   end

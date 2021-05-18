@@ -1,18 +1,21 @@
+# frozen_string_literal: true
+
 class Card
   attr_reader :value
-  
-  SUITS = {0 => '^',
-           1 => '+',
-           2 => '<>',
-           3 => '<3'}
-  
-  VALUES = {11 => 'J',
-            12 => 'Q',
-            13 => 'K',
-            14 => 'A'}
+
+  SUITS = { 0 => '^',
+            1 => '+',
+            2 => '<>',
+            3 => '<3' }.freeze
+
+  VALUES = { 11 => 'J',
+             12 => 'Q',
+             13 => 'K',
+             14 => 'A' }.freeze
 
   def initialize(value, suit)
-    raise "Неправильно задана карта" if !value.between?(2, 14) || !suit.between?(0, 3) 
+    raise 'Неправильно задана карта' if !value.between?(2, 14) || !suit.between?(0, 3)
+
     @value = value
     @suit = suit
   end

@@ -13,7 +13,7 @@ class Player
   def initialize(name)
     @name = name
     @money = 100
-    @hand = Hand.new()
+    @hand = Hand.new
     @points = 0
     @cards_open = true
   end
