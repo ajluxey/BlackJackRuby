@@ -1,5 +1,5 @@
 class Hand
-  attr_reader :hand, :cards
+  attr_accessor :cards
 
   JACKET = 11
   ACE = 14
@@ -14,15 +14,15 @@ class Hand
 
     @cards.each do |card|
       if card.value < JACKET
-        points += value
-      elsif card.value < ACE:
+        points += card.value
+      elsif card.value == ACE
         aces_count += 1
       else
         points += 10
       end
     end
     if aces_count != 0
-      aces_count.times { points += points <= 10 ? 11 : 1 }
+      aces_count.times { points += (points <= 10) ? 11 : 1 }
     end
     points
   end
