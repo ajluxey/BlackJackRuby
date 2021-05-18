@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'diller'
+require_relative 'dealer'
 require_relative 'player'
 require_relative 'bank'
 require_relative 'deck'
@@ -61,7 +61,7 @@ class BlackJack
       retry
     end
     @player1 = Player.new(name)
-    @player2 = Diller.new
+    @player2 = Dealer.new
   end
 
   def start_game

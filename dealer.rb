@@ -2,9 +2,9 @@
 
 require_relative 'player'
 
-class Diller < Player
+class Dealer < Player
   def initialize
-    super('Diller')
+    super('Dealer')
     @cards_open = false
   end
 
