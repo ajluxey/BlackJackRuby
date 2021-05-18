@@ -8,7 +8,7 @@ class Dealer < Player
     @cards_open = false
   end
 
-  def make_a_move
-    calculate_points >= 17 ? 1 : 2
+  def decide_of_the_move
+    calculate_points >= 17 ? :skip : :take_card
   end
 end

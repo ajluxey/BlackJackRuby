@@ -5,8 +5,11 @@ require_relative 'hand.rb'
 
 class Player
   attr_reader :name, :money, :points, :cards_open
+  attr_accessor :next_move
 
-  include PlayerMoves
+  MOVES_BY_NAME = { 'Пропуск хода' => :skip,
+                    'Взять карту' => :take_card,
+                    'Открыть карты' => :open_cards }.freeze
 
   def initialize(name)
     @name = name
@@ -14,6 +17,12 @@ class Player
     @hand = Hand.new()
     @points = 0
     @cards_open = true
+  end
+
+  def availabel_moves
+    availabel_moves = MOVES_BY_NAME.keys
+    availabel_moves.delete('Взять карту') if cards.length > 2
+    availabel_moves
   end
 
   def bet(count)
@@ -26,6 +35,10 @@ class Player
   def get_money(count)
     @money += count
     count
+  end
+
+  def decide_of_the_move
+    @next_move
   end
 
   def skip; end
