@@ -15,17 +15,25 @@ class Interface
 
   def open_game
     puts 'Игра BlackJack'
-    point = menu(['Начать игру', 'Выйти'])
-    case point
-    when START_INDEX
-      start_game
-    when EXIT_INDEX
-      exit
+    first_game = true
+    loop do
+      point = menu(['Начать игру', 'Выйти'])
+      case point
+      when START_INDEX
+        if first_game
+          init_players
+          first_game = false
+        end
+        start_game
+      when EXIT_INDEX
+        break
+      end
+      @game.restart
+      puts "Сыграть снова?"
     end
   end
 
   def start_game
-    init_players
     @game.players_place_bet
 
     begin
@@ -35,13 +43,19 @@ class Interface
       return
     end
 
-    game_is_running = True
-    while game_is_running
-      game_is_running = round
+    @game.can_running?
+    while @game.is_running
+      round
     end
+
+    draw_the_game(*@game.get_round_info)
+    winner = @game.choose_winner
+    draw_the_results(winner)
+    @game.open_cards(nil)
+    draw_the_game(*@game.get_round_info)
   end
 
-  def init_player
+  def init_players
     begin
       name = ask_name
     rescue
@@ -54,10 +68,10 @@ class Interface
   def round
     player = @game.players_order.first
     draw_turn(player)
-    draw_the_game(*@game.get_round_info)
-    if player.is_a? Player
+    if player == @game.player1
+      draw_the_game(*@game.get_round_info)
       move_name = ask_about_move(player.availabel_moves)
-      player.next_move = player.MOVES_BY_NAME[move_name]
+      player.next_move = player.get_move_by(move_name)
     end
     @game.round
   end
@@ -92,16 +106,10 @@ class Interface
     puts "In bank: #{bank.money}$"
     puts
 
-    puts "Player #{p1.name}"
-    puts "Your money: #{p1.money}$"
-    puts "Your cards: #{get_str_of_cards(p1)}"
-    puts "Your points: #{p1.calculate_points}"
+    puts str_stats_of(p1)
     puts
+    puts str_stats_of(p2)
 
-    puts "\Player #{p2.name}"
-    puts "Money: #{p2.money}$"
-    puts "Cards: #{get_str_of_cards(p2)}"
-    puts "Points: #{p2.calculate_points}" if p2.cards_open
     puts '***'
   end
 
@@ -129,11 +137,21 @@ class Interface
     point
   end
 
+  def str_stats_of(player)
+    return '' if player.nil?
+    str = ''
+    str += "Player #{player.name}\n"
+    str += "Money: #{player.money}\n"
+    str += "Cards: #{get_str_of_cards(player)}\n"
+    str += "Points: #{player.points}" if player.cards_open
+    str
+  end
+
   def get_str_of_cards(player)
     if player.cards_open
-      player.cards.join(', ')
+      player.hand.cards.join(', ')
     else
-      '* ' * player.cards.length
+      '* ' * player.hand.cards.length
     end
   end
 end
