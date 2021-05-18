@@ -1,10 +1,9 @@
 # frozen_string_literal: true
 
-require_relative 'player_moves'
-require_relative 'hand.rb'
+require_relative 'hand'
 
 class Player
-  attr_reader :name, :money, :points, :cards_open
+  attr_reader :name, :money, :points, :cards_open, :hand
   attr_accessor :next_move
 
   MOVES_BY_NAME = { 'Пропуск хода' => :skip,
@@ -21,7 +20,7 @@ class Player
 
   def availabel_moves
     availabel_moves = MOVES_BY_NAME.keys
-    availabel_moves.delete('Взять карту') if cards.length > 2
+    availabel_moves.delete('Взять карту') if @hand.cards.length > 2
     availabel_moves
   end
 
@@ -52,8 +51,12 @@ class Player
     @cards_open = true
   end
 
+  def get_move_by(name)
+    MOVES_BY_NAME[name]
+  end
+
   def restart
-    @cards_open = false
-    @cards = []
+    @cards_open = true
+    @hand.cards = []
   end
 end
