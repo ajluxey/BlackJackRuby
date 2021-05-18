@@ -1,18 +1,65 @@
 # frozen_string_literal: true
 
+require_relative 'player'
+
 class Interface
-  def initialize
-    puts 'Игра BlackJack'
+  START_INDEX = 1
+  EXIT_INDEX = 2
+
+  def initialize(game)
+    @game = game
+    open_game
   end
 
-  def main_menu(first_start)
-    if first_start
-      menu(['Начать игру', 'Выйти'])
-    else
-      menu(%w[Повторить Выйти])
+  private
+
+  def open_game
+    puts 'Игра BlackJack'
+    point = menu(['Начать игру', 'Выйти'])
+    case point
+    when START_INDEX
+      start_game
+    when EXIT_INDEX
+      exit
     end
-  rescue Exception => e
-    raise e
+  end
+
+  def start_game
+    init_players
+    @game.players_place_bet
+
+    begin
+      @game.deal_initial_card
+    rescue
+      puts "У одного из игроков уже были карты"
+      return
+    end
+
+    game_is_running = True
+    while game_is_running
+      game_is_running = round
+    end
+  end
+
+  def init_player
+    begin
+      name = ask_name
+    rescue
+      puts "Без имени играть нельзя"
+      retry
+    end
+    @game.init_players(name)
+  end
+
+  def round
+    player = @game.players_order.first
+    draw_turn(player)
+    draw_the_game(*@game.get_round_info)
+    if player.is_a? Player
+      move_name = ask_about_move(player.availabel_moves)
+      player.next_move = player.MOVES_BY_NAME[move_name]
+    end
+    @game.round
   end
 
   def ask_name
@@ -25,7 +72,11 @@ class Interface
 
   def ask_about_move(moves)
     res = menu(moves)
-    res == -1 ? res : moves[res - 1]
+  rescue
+    puts "Неправильный пункт"
+    retry
+  else
+    move = moves[res - 1]
   end
 
   def draw_turn(player)
